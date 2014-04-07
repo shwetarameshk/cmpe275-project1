@@ -1,5 +1,7 @@
 package poke.server;
 
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 
@@ -8,11 +10,13 @@ public class ServerNodeInfo {
 	public static String nodeId = new String();
     public static String leaderId;
     public static long lastModifiedDate =0;
-
-    public static boolean isLeader(String nodeIdToCheck){
+    public static String whoami;
+    public static String myport;
+	
+    public static boolean isLeader(String nearestNodeId){
 
         leaderId = getLeaderId();
-        if(nodeIdToCheck.equals(leaderId)){
+        if(nearestNodeId.equals(leaderId)){
             return true;
         }
         return false;
@@ -40,7 +44,8 @@ public class ServerNodeInfo {
            return leaderId;
             }
         catch (Exception e){
-            return null;
+            System.out.println("Exception in getting Leader");
+            return  null;
         }
 
     }
@@ -61,7 +66,7 @@ public class ServerNodeInfo {
         BufferedReader br = null;
         try {
             String sCurrentLine;
-            br = new BufferedReader(new FileReader("src\\leader.txt"));
+            br = new BufferedReader(new FileReader("src/leader.txt"));
             while ((sCurrentLine = br.readLine()) != null) {
                 System.out.println(sCurrentLine);
                 leader = sCurrentLine.split(":");
@@ -84,7 +89,7 @@ public class ServerNodeInfo {
         if(!winnerNode.equals(leaderId)){//only when the current winnerNode from already present leaderNode we write into the file.
         BufferedWriter out = null;
         try {
-            out = new BufferedWriter(new FileWriter("src\\leader.txt"));
+            out = new BufferedWriter(new FileWriter("src/leader.txt"));
             out.write("Leader:" + winnerNode);
             lastModifiedDate = getLastModifiedDate();
             leaderId = winnerNode;

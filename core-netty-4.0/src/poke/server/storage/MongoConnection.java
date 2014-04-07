@@ -18,7 +18,7 @@ import poke.server.resources.MongoConfiguration;
 public class MongoConnection {
 
     private boolean success = false;
-    private MongoClient mongoClient;
+    private static MongoClient mongoClient;
     private static DB db;
     private static DBCollection collection;
     private static DBObject course;
@@ -45,41 +45,43 @@ public class MongoConnection {
         this.dbName = configuration.getDbName();
 
         this.dbHost0 = configuration.getNode_zero();
-        this.dbHost1 = configuration.getNode_one();
+        /*this.dbHost1 = configuration.getNode_one();
         this.dbHost2 = configuration.getNode_two();
         this.dbHost3 = configuration.getNode_three();
-        this.dbHost4 = configuration.getNode_four();
+        this.dbHost4 = configuration.getNode_four();*/
 
         this.dbPort0 = configuration.getPort_zero();
-        this.dbPort1 = configuration.getPort_one();
+        /*this.dbPort1 = configuration.getPort_one();
         this.dbPort2 = configuration.getPort_two();
         this.dbPort3 = configuration.getPort_three();
-        this.dbPort4 = configuration.getPort_four();
+        this.dbPort4 = configuration.getPort_four();*/
 
     }
 
 
     @SuppressWarnings("finally")
-    public boolean obtainConnection(String host, int port) {
+    public boolean obtainConnection() {
         try {
-                mongoClient = new MongoClient(Arrays.asList(new ServerAddress(dbHost0,dbPort0),
+                /*mongoClient = new MongoClient(Arrays.asList(new ServerAddress(dbHost0,dbPort0),
                         new ServerAddress(dbHost1,dbPort1),new ServerAddress(dbHost2,dbPort2),
-                        new ServerAddress(dbHost3,dbPort3),new ServerAddress(dbHost4,dbPort4)));
-                       //new MongoClient(new ServerAddress(host, port));
+                        new ServerAddress(dbHost3,dbPort3),new ServerAddress(dbHost4,dbPort4)));*/
+                if(mongoClient == null)
+                {
+                    mongoClient = new MongoClient(new ServerAddress(dbHost0, dbPort0));
+                    db = mongoClient.getDB(dbName);
+                }
 
-                db = mongoClient.getDB(dbName);
-
-                collection = db.getCollection("courseList");
+                //collection = db.getCollection("courseList");
                 success = true;
         }
         catch (UnknownHostException e) {
-            System.out.println("Exception at + " + e.getMessage());
+            System.out.println("Exception of UnknownHost at obtaining db connection + " + e.getMessage());
             success = false;
             System.out.println(e);
             e.printStackTrace();
         }
         catch(Exception e){
-            System.out.println("Exception at + " + e.getStackTrace());
+            System.out.println("Exception at obtainConnection " + e.getStackTrace());
         }
         finally {
             return success;

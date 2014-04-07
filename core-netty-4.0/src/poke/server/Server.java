@@ -147,6 +147,8 @@ public class Server {
 			br.read(raw);
 			conf = JsonUtil.decode(new String(raw), ServerConf.class);
 			ServerNodeInfo.nodeId=conf.getServer().getProperty("node.id");
+            ServerNodeInfo.myport = conf.getServer().getProperty("port");
+            ServerNodeInfo.whoami = "127.0.0.0";
 			ResourceFactory.initialize(conf);
 		} catch (Exception e) {
 		}

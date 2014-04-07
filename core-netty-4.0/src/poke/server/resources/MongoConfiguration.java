@@ -38,18 +38,20 @@ public class MongoConfiguration {
     private static String dbName;
 
     public MongoConfiguration() throws IOException{
+
         Properties properties = new Properties();
         InputStream input = null;
 
-
-        String fileName = "properties.mongo";
+        String fileName = "src/properties.mongo";
         input = MongoConfiguration.class.getClassLoader().getResourceAsStream(fileName);
+
         if(input==null){
             logger.info("Sorry, unable to find " + fileName);
             return;
         }
 
         properties.load(input);
+
         dbName = properties.getProperty("dbName");
         node_zero = properties.getProperty("node_zero");
         node_one = properties.getProperty("node_one");

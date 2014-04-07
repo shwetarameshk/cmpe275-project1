@@ -17,6 +17,7 @@ package poke.server.resources;
 
 import java.util.List;
 
+import eye.Comm;
 import poke.server.conf.ServerConf;
 import eye.Comm.Header;
 import eye.Comm.Header.Routing;
@@ -94,4 +95,21 @@ public class ResourceUtil {
 
 		return bldr.build();
 	}
+
+    public static Request buildVotingIsLeader(String hostIp, String portId){
+
+        Request.Builder bldr = Request.newBuilder();
+        Header hdr = buildHeader(Routing.JOBS, PokeStatus.SUCCESS,"",hostIp,"Voting");
+        bldr.setHeader(hdr);
+
+        Comm.FindLeader.Builder findLeader = Comm.FindLeader.newBuilder();
+        findLeader.setLeaderIp(hostIp);
+        findLeader.setLeaderPort(portId);
+
+        Comm.Payload.Builder payload = Comm.Payload.newBuilder();
+        payload.setFindLeader(findLeader.build());
+        bldr.setBody(payload.build());
+
+        return bldr.build();
+    }
 }

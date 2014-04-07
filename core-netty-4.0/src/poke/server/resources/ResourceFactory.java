@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import poke.resources.VotingResource;
+import poke.server.ServerNodeInfo;
 import poke.server.conf.ServerConf;
 import poke.server.conf.ServerConf.ResourceConf;
 import eye.Comm.Header;
@@ -68,13 +70,10 @@ public class ResourceFactory {
 	private ResourceFactory() {
 	}
 
-	/**
-	 * Obtain a resource
-	 * 
-	 * @param route
-	 * @return
-	 */
+
+
 	public Resource resourceInstance(Header header) {
+
 		// is the message for this server?
 		if (header.hasToNode()) {
 			String iam = cfg.getServer().getProperty("node.id");
@@ -84,6 +83,15 @@ public class ResourceFactory {
 				// forward request
 			}
 		}
+
+        if(("Voting").equals(header.getTag())){
+            logger.info("--->Header has Voting ");
+            if(ServerNodeInfo.isLeader()){
+                logger.info("--->Header has Voting 2");
+                Resource votingResource = new VotingResource();
+                return votingResource;
+            }
+        }
 
 		ResourceConf rc = cfg.findById(header.getRoutingId().getNumber());
 		if (rc == null)
