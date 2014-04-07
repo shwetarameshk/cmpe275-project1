@@ -1,0 +1,11 @@
+node_one=localhost
+port_one=27017
+node_two=192.168.0.91
+port_two=27017
+node_three=192.168.0.92
+port_three=27017
+node_four=192.168.0.93
+port_four=27017
+node_zero=192.168.0.94
+port_zero=27017
+dbName=courses

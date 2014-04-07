@@ -1,0 +1,143 @@
+/*
+ * copyright 2014, gash
+ * 
+ * Gash licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+package poke.client;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import poke.client.comm.CommConnection;
+import poke.client.comm.CommHandler;
+import poke.client.comm.CommListener;
+import poke.server.management.managers.ClientListener;
+import poke.server.management.managers.HeartbeatListener;
+import eye.Comm.Header;
+import eye.Comm.Management;
+import eye.Comm.Network;
+import eye.Comm.Network.NetworkAction;
+import eye.Comm.Payload;
+import eye.Comm.Ping;
+import eye.Comm.Request;
+
+/**
+ * The command class is the concrete implementation of the functionality of our
+ * network. One can view this as a interface or facade that has a one-to-one
+ * implementation of the application to the underlining communication.
+ * 
+ * IN OTHER WORDS (pay attention): One method per functional behavior!
+ * 
+ * @author gash
+ * 
+ */
+public class ClientCommand {
+	protected static Logger logger = LoggerFactory.getLogger("client");
+
+	private String host;
+	private int port;
+	private CommConnection comm;
+
+	public ClientCommand(String host, int port) {
+		this.host = host;
+		this.port = port;
+
+		init();
+	}
+
+	private void init() {
+		logger.info("Inside init of clientCommand");
+		comm = new CommConnection(host, port);
+	}
+
+	/**
+	 * add an application-level listener to receive messages from the server (as
+	 * in replies to requests).
+	 * 
+	 * @param listener
+	 */
+	/*public void addListener(CommListener listener) {
+		comm.addListener(listener);
+	}
+	
+	//Jeena
+	public void addListener(HeartbeatListener listener)
+	{
+		comm.addListener(listener);
+	}
+	
+	public void addListener(PortListener listener)
+	{
+		comm.addListener(listener);
+	}*/
+	
+	public void addListener(ClientListener listener)
+	{
+		comm.addListener(listener);
+	}
+	//Jeena
+
+	/**
+	 * Our network's equivalent to ping
+	 * 
+	 * @param tag
+	 * @param num
+	 */
+	public void poke(String tag, int num) {
+		// data to send
+		Ping.Builder f = eye.Comm.Ping.newBuilder();
+		f.setTag(tag);
+		f.setNumber(num);
+		
+		//-->jeena 4/6
+		eye.Comm.InitVoting.Builder iv=eye.Comm.InitVoting.newBuilder();
+		iv.setVotingId("voting_id");
+		iv.setHostIp("host_ip");
+		iv.setPortIp("port_ip");
+		//-->jeena 4/6
+
+		// payload containing data
+		Request.Builder r = Request.newBuilder();
+		eye.Comm.Payload.Builder p = Payload.newBuilder();
+		
+		p.setPing(f.build());
+		p.setInitVoting(iv.build());
+		r.setBody(p.build());
+		
+
+		// header with routing info
+		eye.Comm.Header.Builder h = Header.newBuilder();
+		h.setOriginator("client");
+		
+		h.setTag("test finger");
+		h.setTime(System.currentTimeMillis());
+		h.setRoutingId(eye.Comm.Header.Routing.PING);
+		r.setHeader(h.build());
+		
+		
+
+		eye.Comm.Request req = r.build();
+		//CommHandler ch=new CommHandler();
+		
+		
+
+		try {
+			comm.sendMessage(req);
+			//ch.send(req);
+			
+		} catch (Exception e) {
+			logger.warn("Unable to deliver message, queuing");
+		}
+	}
+
+}
